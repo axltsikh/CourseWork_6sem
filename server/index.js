@@ -22,7 +22,12 @@ let open = async()=>{
     await sql.connect(sqlConfig)
 }
 open();
-
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Methods", "GET,PUT,PATCH,POST,DELETE");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
 app.post("/user/create",function(req,response){
     const request = new sql.Request();
     let buffer = JSON.parse(JSON.stringify(req.body));
@@ -39,6 +44,7 @@ app.post("/user/create",function(req,response){
     })
 })
 app.post("/user/login",function(req,response){
+    console.log("Login call");
     const request = new sql.Request();
     let buffer = JSON.parse(JSON.stringify(req.body));
     request.input('name',buffer.name)
@@ -61,13 +67,16 @@ app.post("/user/login",function(req,response){
     })
 })
 app.post("/user/changePassword",function(req,response){
-
+    console.log("ChangePassword request");
     const request = new sql.Request();
     let buffer = JSON.parse(JSON.stringify(req.body));
     request.input('id',buffer.id)
     request.input('password',buffer.password)
+    console.log(buffer.password);
+    console.log(buffer.id);
     request.execute('ChangePassword',(err,result)=>{
         if(result.returnValue==1){
+            console.log("change succes");
             response.statusCode =200;
             response.end("Пароль успешно изменен")
         }else{
@@ -172,10 +181,10 @@ app.post("/project/create",function(req,response){
         console.log(organisationMemberID);
         request.execute('CreateProject',(err,result)=>{
         if(result.returnValue==1){
-           response.statusCode=500
               response.statusCode=200
             response.end("Проект успешно создан")
         }else{
+            response.statusCode=500
            response.end("Произошла ошибка")
         }
         })
@@ -195,7 +204,7 @@ app.post("/project/addMembers",function(req,response){
             })
         });
         response.statusCode = 200;
-        response.end("Операция успешна!")        
+        response.end("Успешно выполнено")        
     }catch{
         console.log(buffer.organisationID);
         const request = new sql.Request();
@@ -213,7 +222,7 @@ app.post("/project/addMembers",function(req,response){
 
 })
 app.get("/project/getAllUserProjects",function(req,response){
-    console.log("proejcts call");
+    console.log("getAllUserProjects call");
     request = new sql.Request();
     request.input('userID',req.query.userID);
     request.execute('GetAllUserProjects',(err,result)=>{
@@ -271,9 +280,9 @@ app.post("/project/addParentSubTask",function(req,response){
     request.input('title',buffer.title);
     request.input('projectID',buffer.projectID);
     request.execute('InsertParentSubTask',(err,result)=>{
-        if(result.returnValue==1){
+        if(result.returnValue!=-1){
             response.statusCode=200
-            response.end("Успешно")
+            response.end(result.returnValue.toString())
         }else{
             response.statusCode=500
             response.end("Произошла ошибка")
@@ -446,5 +455,264 @@ app.get("/local/getAllOrganisationUsersRows",function(req,response){
     request.execute('SelectAllOrganisationUsersRows',(err,result)=>{
         response.statusCode=200
         response.end(JSON.stringify(result.recordset));
+    })
+})
+app.delete("/project/delete",function(req,response){
+    console.log("Project delete click");
+    const request = new sql.Request();
+    let buffer = JSON.parse(JSON.stringify(req.body));
+    request.input('projectID',buffer.id);
+    request.execute('DeleteProject',(err,result)=>{
+        response.statusCode=200;
+        response.end("Deleted succesfully");
+    })
+})
+
+
+//webApp
+app.post("/web/getAllCreatorProjects",function(req,response){
+    console.log("getAllCreatorProjects call");
+    request = new sql.Request();
+    let buffer = JSON.parse(JSON.stringify(req.body));
+    request.input('userID',buffer.userID);
+    request.execute('getAllCreatorProjects',(err,result)=>{
+        response.statusCode=200
+        response.end(JSON.stringify(result.recordset));
+    })
+})
+app.post("/web/GetAllChildSubTasks",function(req,response){
+    console.log("GetAllChildSubTasks call");
+    request = new sql.Request();
+    let buffer = JSON.parse(JSON.stringify(req.body));
+    request.input('projectID',buffer.projectID);
+    request.execute('GetAllChildSubTasks',(err,result)=>{
+        response.statusCode=200
+        response.end(JSON.stringify(result.recordset));
+    })
+})
+app.post("/web/prolongProjectDate",function(req,response){
+    console.log("prolongProjectDate call");
+    request = new sql.Request();
+    let buffer = JSON.parse(JSON.stringify(req.body));
+    request.input('projectID',buffer.projectID);
+    request.input('endDate',buffer.endDate);
+    console.log(buffer.projectID);
+    console.log(buffer.endDate);
+    request.execute('ProlongProjectDate',(err,result)=>{
+        if(result.returnValue==1){
+            response.statusCode=200
+            response.end("Успешно выполнено")
+        }else{
+            response.statusCode = 500;
+            response.end("Произошла ошибка");
+        }
+        
+    });
+})
+app.post("/web/endProject",function(req,response){
+    console.log("endProject call");
+    request = new sql.Request();
+    let buffer = JSON.parse(JSON.stringify(req.body));
+    request.input('projectID',buffer.projectID);
+    request.execute('EndProject',(err,result)=>{
+        if(result.returnValue==1){
+            response.statusCode=200
+            response.end("Успешно выполнено")
+        }else{
+            response.statusCode = 500;
+            response.end("Произошла ошибка");
+        }
+        
+    });
+})
+app.delete("/web/deleteMember",function(req,response){
+
+
+    console.log("deleteMember call");
+    request = new sql.Request();
+    request.input('id',req.query.id);
+    console.log(req.query.id);
+    request.execute('deleteMember',(err,result)=>{
+        if(result.returnValue==1){
+            response.statusCode=200
+            response.end("Успешно выполнено")
+        }else{
+            response.statusCode = 500;
+            response.end("Произошла ошибка");
+        }
+        
+    });
+})
+app.delete("/web/deleteChildSubTask",function(req,response){
+    console.log("deleteChildSubTask call");
+    request = new sql.Request();
+    request.input('id',req.query.id);
+    console.log(req.query.id);
+    request.execute('DeleteChilSubTask',(err,result)=>{
+        if(result.returnValue==1){
+            response.statusCode=200
+            response.end("Успешно выполнено")
+        }else{
+            response.statusCode = 500;
+            response.end("Произошла ошибка");
+        }
+        
+    });
+})
+app.delete("/web/deleteParentSubTask",function(req,response){
+    console.log("deleteParentSubTask call");
+    request = new sql.Request();
+    let buffer = JSON.parse(JSON.stringify(req.body));
+    request.input('id',req.query.id);
+    request.execute('DeleteParentSubTask',(err,result)=>{
+        if(result.returnValue==1){
+            response.statusCode=200
+            response.end("Успешно выполнено")
+        }else{
+            response.statusCode = 500;
+            response.end("Произошла ошибка");
+        }
+        
+    });
+})
+//reverseSync
+app.post("/reverseSync/updateMemberState",function(req,response){
+    const request = new sql.Request();
+    let buffer = JSON.parse(JSON.stringify(req.body));
+    request.input('id',buffer.id)
+    if(buffer.deleted == 'true'){
+        request.input('deleted',1)
+        console.log(1);
+    }else{
+        request.input('deleted',0)
+        console.log(0);
+    }
+    request.execute('ChangeMemberState',(err,result)=>{
+        if(result.returnValue==1){
+            response.statusCode =200;
+            response.end("Статус изменен")
+        }else{
+            response.statusCode = 500;
+            response.end("Произошла ошибка")
+        }
+    })
+})
+app.post("/reverseSync/uploadProject",function(req,response){
+    console.log("uploadProject call");
+    request = new sql.Request();
+    let buffer = JSON.parse(JSON.stringify(req.body));
+    request.input('userID',buffer.userID);
+    var organisationMemberID = 0;
+    request.execute('GetOrganisationMemberIDByUserID',(err,result)=>{
+        organisationMemberID = result.recordset.at(0).id;
+        console.log('post: ' + result.recordset.at(0).id);
+
+        request = new sql.Request();
+        request.input('title',buffer.title)
+        request.input('description',buffer.description)
+        request.input('startDate',buffer.startDate)
+        request.input('endDate',buffer.endDate)
+        request.input('organisationMemberID',organisationMemberID)
+        console.log(organisationMemberID);
+        request.execute('UploadProject',(err,result)=>{
+        if(result.returnValue!=0){
+            response.statusCode=200
+            console.log(result.returnValue.toString());
+            response.end(result.returnValue.toString())
+        }else{
+            response.statusCode=500
+           response.end("Произошла ошибка")
+        }
+        })
+    })
+})
+app.get("/reverseSync/uploadProject",function(req,response){
+    console.log("uploadProject call");
+    request = new sql.Request();
+    request.input("id",req.query.id)
+    request.execute('GetProjectCreatorID',(err,result)=>{
+        console.log('get: id' + result.recordset.at(0).id);
+        response.statusCode=200
+        response.end(result.recordset.at(0).id.toString())
+    })
+})
+
+
+app.post("/reverseSync/uploadProjectMembers",function(req,response){
+    console.log("uploadProjectMembers call");
+    let buffer = JSON.parse(JSON.stringify(req.body));
+    request = new sql.Request();
+    request.input('projectID',buffer.projectID);
+    request.input('organisationMemberID',buffer.organisationMemberID);
+    console.log("memid: " + buffer.organisationMemberID);
+    console.log("projid: " + buffer.projectID);
+    request.execute('UploadProjectMember',(err,result)=>{
+        if(result.returnValue!=-1){
+            response.statusCode=200
+            response.end(result.returnValue.toString())
+        }else{
+            response.statusCode=500
+            response.end("Произошла ошибка")
+        }
+    })
+})
+app.post("/reverseSync/uploadParentSubTask",function(req,response){
+    console.log("AddParentTask call");
+    let buffer = JSON.parse(JSON.stringify(req.body));
+    request = new sql.Request();
+    request.input('title',buffer.title);
+    request.input('projectID',buffer.projectID);
+    console.log('got projectID: ' + buffer.projectID);
+    console.log('got title: ' + buffer.title);
+    request.execute('UploadParentSubTask',(err,result)=>{
+        if(result.returnValue!=-1){
+            response.statusCode=200
+            console.log('uploaded parent: ' + result.returnValue.toString());
+            response.end(result.returnValue.toString())
+        }else{
+            response.statusCode=500
+            response.end("Произошла ошибка")
+        }
+    })
+})
+app.post("/reverseSync/uploadChildSubTask",function(req,response){
+    console.log("uploadChildSubTask call");
+    let buffer = JSON.parse(JSON.stringify(req.body));
+    request = new sql.Request();
+    request.input('title',buffer.title);
+    request.input('projectID',buffer.projectID);
+    request.input('parentID',buffer.parent);
+    request.input('isDone',buffer.isDone);
+    request.input('isTotallyDone',buffer.isTotallyDone);
+    request.input('ExecutorID',buffer.executorID);
+    request.input('executorMemberID',buffer.executorMemberID);
+    console.log('got parentID: ' + buffer.parent);
+    console.log('got title: ' + buffer.title);
+    request.execute('UploadChildSubTask',(err,result)=>{
+        if(result.returnValue!=-1){
+            response.statusCode=200
+            console.log('got response: ' + result.returnValue.toString());
+            response.end(result.returnValue.toString())
+        }else{
+            response.statusCode=500
+            response.end("Произошла ошибка")
+        }
+    })
+})
+app.post("/reverseSync/uploadSimplyChangedChildSubTask",function(req,response){
+    console.log("uploadSimplyChangedChildSubTask call");
+    let buffer = JSON.parse(JSON.stringify(req.body));
+    request = new sql.Request();
+    request.input('id',buffer.id);
+    request.input('isDone',buffer.isDone);
+    request.input('isTotallyDone',buffer.isTotallyDone);
+    request.execute('UploadSimplyChangedSubTask',(err,result)=>{
+        if(result.returnValue!=-1){
+            response.statusCode=200
+            response.end(result.returnValue.toString())
+        }else{
+            response.statusCode=500
+            response.end("Произошла ошибка")
+        }
     })
 })

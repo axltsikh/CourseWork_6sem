@@ -1,15 +1,15 @@
 class ProjectMember{
   int id;
   int projectID;
-  int organisationMemberId;
-  ProjectMember(this.id,this.projectID,this.organisationMemberId);
+  int organisationMemberID;
+  ProjectMember(this.id,this.projectID,this.organisationMemberID);
   ProjectMember.fromJson(Map<String,dynamic> json)
       :id = json['id'],
         projectID = json['projectID'],
-        organisationMemberId = json['organisationMemberId'];
+        organisationMemberID = json['organisationMemberID'];
   Map<String,dynamic> toJson() => {
     'id' : id,
     'projectID' : projectID,
-    'organisationMemberId' : organisationMemberId
+    'organisationMemberID' : organisationMemberID
   };
 }

@@ -1,7 +1,7 @@
 import 'dart:convert';
-import 'package:course_application/CustomModels/ProjectMember.dart';
+import 'package:course_application/CustomModels/CustomProjectMember.dart';
 import 'package:http/http.dart' as http;
-import 'package:course_application/CustomModels/OrganisationMember.dart';
+import 'package:course_application/CustomModels/CustomOrganisationMember.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'Utility.dart';
@@ -9,14 +9,14 @@ import 'Utility.dart';
 
 class AddSubTaskExecutorDialog extends StatefulWidget{
   AddSubTaskExecutorDialog(this.projectMembers){}
-  List<ProjectMember> projectMembers;
+  List<CustomProjectMember> projectMembers;
   @override
   State<StatefulWidget> createState() => _AddSubTaskExecutorDialog(projectMembers);
 }
 
 class _AddSubTaskExecutorDialog extends State<AddSubTaskExecutorDialog> {
   _AddSubTaskExecutorDialog(this.projectMembers){}
-  List<ProjectMember> projectMembers;
+  List<CustomProjectMember> projectMembers;
 
   @override
   Widget build(BuildContext context) {

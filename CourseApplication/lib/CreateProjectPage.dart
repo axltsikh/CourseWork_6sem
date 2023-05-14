@@ -1,12 +1,14 @@
 import 'dart:convert';
-import 'package:course_application/CustomModels/OrganisationMember.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:course_application/CustomModels/CustomOrganisationMember.dart';
 import 'package:course_application/manyUsageTemplate/CupertinoButtonTemplate.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import 'package:http/http.dart' as http;
 import 'AddProjectMemberDialog.dart';
-import 'CustomModels/ProjectMember.dart';
+import 'CustomModels/CustomProjectMember.dart';
 import 'Utility.dart';
 
 class CreateProjectPage extends StatefulWidget{
@@ -15,55 +17,57 @@ class CreateProjectPage extends StatefulWidget{
   State<StatefulWidget> createState() => _CreateProjectPage();
 }
 class _CreateProjectPage extends State<CreateProjectPage> {
-  String startDate="Начало";
-  String endDate="Конец";
-  List<OrganisationMember> organisationMembers = <OrganisationMember>[];
-  List<ProjectMember> projectMembers = <ProjectMember>[];
+  String startDate="";
+  String endDate="";
+  List<CustomOrganisationMember> organisationMembers = <CustomOrganisationMember>[];
+  List<CustomProjectMember> projectMembers = <CustomProjectMember>[];
   TextEditingController titleController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
-  //
 
-  Widget showDatePicker(){
-    return AlertDialog(
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(30))),
-      contentPadding: EdgeInsets.only(top: 10.0),
-      content: SfDateRangePicker(
-        selectionMode: DateRangePickerSelectionMode.range,
-        initialSelectedRange: PickerDateRange(
-          DateTime.now().subtract(const Duration(days: 4)),
-            DateTime.now().add(const Duration(days: 3))),
-        )
-      );
-  }
+
   Future<void> createProject() async{
-    final String url = "http://10.0.2.2:5000/project/create";
-    final response = await http.post(Uri.parse(url),headers: <String,String>{
-      'Content-Type': 'application/json;charset=UTF-8',
-    },body: jsonEncode(<String,String>{
-      'userID': Utility.user.id.toString(),
-      'title': titleController.text,
-      'description' : descriptionController.text,
-      'startDate': startDate,
-      'endDate' : endDate
-    }));
-    if(response.statusCode==200){
-      print("Заебись");
-      await addProjectMembers();
-    }else{
-      print("asd");
+    if(titleController.text.length<3){
+      Fluttertoast.showToast(msg: "Минимальная длина названия проекта - 3 символа");
+    }else if(startDate=="" || endDate==""){
+      Fluttertoast.showToast(msg: "Выберите даты проекта!");
+    }
+    if(descriptionController.text==""){
+      descriptionController.text = "Описание отстутсвует";
+    }
+    final connectivityResult = await (Connectivity().checkConnectivity());
+    if(connectivityResult == ConnectivityResult.none){
+      await Utility.databaseHandler.createProject(titleController.text, descriptionController.text, startDate, endDate,projectMembers);
+      Fluttertoast.showToast(msg: "Проект успешно создан!");
+      Navigator.pop(context,1);
+    }else {
+      final String url = "http://${Utility.url}/project/create";
+      final response = await http.post(Uri.parse(url),headers: <String,String>{
+        'Content-Type': 'application/json;charset=UTF-8',
+      },body: jsonEncode(<String,String>{
+        'userID': Utility.user.id.toString(),
+        'title': titleController.text,
+        'description' : descriptionController.text,
+        'startDate': startDate,
+        'endDate' : endDate
+      }));
+      if(response.statusCode==200){
+        await addProjectMembers();
+      }else{
+        Fluttertoast.showToast(msg: "Произошла ошибка!");
+      }
     }
   }
   Future<void> addProjectMembers() async{
     print(projectMembers.length);
-    const String url = "http://10.0.2.2:5000/project/addMembers";
+    final String url = "http://${Utility.url}/project/addMembers";
     final response = await http.post(Uri.parse(url),headers: <String,String>{
       'Content-Type': 'application/json;charset=UTF-8',
     },body: jsonEncode(projectMembers));
     if(response.statusCode==200){
-      print("Заебись");
+      Fluttertoast.showToast(msg: "Проект успешно создан!");
+      Navigator.pop(context,1);
     }else{
-      print("asd");
+      Fluttertoast.showToast(msg: "Произошла ошибка!");
     }
   }
   //

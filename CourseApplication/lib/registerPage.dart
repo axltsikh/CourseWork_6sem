@@ -1,8 +1,13 @@
 import 'dart:convert';
 
+import 'package:course_application/manyUsageTemplate/CupertinoButtonTemplate.dart';
+import 'package:crypto/crypto.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
+
+import 'Utility.dart';
 
 class RegisterPage extends StatefulWidget{
   @override
@@ -14,20 +19,30 @@ class _RegisterPage extends State<RegisterPage>{
   final repeatPasswordFieldController = TextEditingController();
   String errorText = "";
   void registerClick() async {
+    if(loginFieldController.text.length<3){
+      Fluttertoast.showToast(msg: "Минимальная длина логина - 3 символа");
+      return;
+    }else if(passwordFieldController.text.length<8){
+      Fluttertoast.showToast(msg: "Минмальная длина пароля - 8 символов");
+      return;
+    }else if(repeatPasswordFieldController.text!=passwordFieldController.text){
+      Fluttertoast.showToast(msg: "Пароли не совпадают!");
+      return;
+    }
     await createUser();
   }
   Future<void> createUser() async{
-    const String url = "http://10.0.2.2:5000/user/create";
-    final response = await http.post(Uri.parse(url),headers: <String,String>{
+    final response = await http.post(Uri.parse("http://${Utility.url}/user/create"),headers: <String,String>{
       'Content-Type': 'application/json;charset=UTF-8',
     },body: jsonEncode(<String,String>{
       'name': loginFieldController.text,
-      'password': repeatPasswordFieldController.text
+      'password': md5.convert(utf8.encode(repeatPasswordFieldController.text)).toString()
     }));
     if(response.statusCode==200){
-
+      Fluttertoast.showToast(msg: "Аккаунт успешно создан");
+      Navigator.pop(context);
     }else{
-
+      Fluttertoast.showToast(msg: "Имя пользователя занято!");
     }
 
   }
@@ -45,39 +60,36 @@ class _RegisterPage extends State<RegisterPage>{
               children: [
                 Container(
                   margin: const EdgeInsets.only(top: 25),
-                  child: TextField(
+                  child: CupertinoTextField(
+                    placeholder: "Имя пользователя",
                     controller: loginFieldController,
-                    decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        hintText: 'Имя пользователя'
-                    ),
-                  ),
+                    clearButtonMode: OverlayVisibilityMode.always,
+
+                  )
                 ),
                 Container(
                   margin: const EdgeInsets.only(top: 15),
-                  child: TextField(
+                  child: CupertinoTextField(
+                    placeholder: "Пароль",
                     controller: passwordFieldController,
-                    decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        hintText: 'Пароль'
-                    ),
-                  ),
+                    clearButtonMode: OverlayVisibilityMode.always,
+                    obscureText: true,
+                  )
                 ),
                 Container(
                   margin: const EdgeInsets.only(top: 15),
-                  child: TextField(
+                  child: CupertinoTextField(
+                    placeholder: "Повторите пароль",
                     controller: repeatPasswordFieldController,
-                    decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        hintText: 'Подтвердите пароль'
-                    ),
-                  ),
+                    clearButtonMode: OverlayVisibilityMode.always,
+                    obscureText: true,
+                  )
                 ),
                 Container(
                     margin: const EdgeInsets.only(top: 15),
-                    child: OutlinedButton(
-                      onPressed: registerClick,
-                      child: const Text("Создать аккаунт"),
+                    child: CupertinoButtonTemplate(
+                      "Создать аккаунт",
+                        registerClick
                     )
                 ),
 

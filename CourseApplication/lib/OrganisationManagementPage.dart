@@ -6,7 +6,7 @@ import 'package:course_application/manyUsageTemplate/CupertinoButtonTemplate.dar
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'CustomModels/OrganisationMember.dart';
+import 'CustomModels/CustomOrganisationMember.dart';
 import 'Utility.dart';
 
 class OrganisationManagementPage extends StatefulWidget{
@@ -22,7 +22,7 @@ class _OrganisationManagementPage extends State<OrganisationManagementPage> {
   }
   TextEditingController controller = TextEditingController();
   GetUserOrganisation organisation;
-  List<OrganisationMember> organisationMembers = [];
+  List<CustomOrganisationMember> organisationMembers = [];
   Future<void> getOrganisationMembers() async{
     final connectivityResult = await (Connectivity().checkConnectivity());
     if(connectivityResult == ConnectivityResult.none){
@@ -33,7 +33,7 @@ class _OrganisationManagementPage extends State<OrganisationManagementPage> {
         controller.text = organisation.name;
       });
     }else {
-      final String url = "http://10.0.2.2:5000/organisation/getMembers";
+      final String url = "http://${Utility.url}/organisation/getMembers";
       final response = await http.post(Uri.parse(url),headers: <String,String>{
         'Content-Type': 'application/json;charset=UTF-8',
       },body: jsonEncode(<String,String>{
@@ -43,8 +43,8 @@ class _OrganisationManagementPage extends State<OrganisationManagementPage> {
         organisationMembers.clear();
         List<dynamic> bodyBuffer = jsonDecode(response.body);
         bodyBuffer.forEach((bodyBufferElement) {
-          if(!organisationMembers.any((element) => element.id == OrganisationMember.fromJson(bodyBufferElement).id)){
-            organisationMembers.add(OrganisationMember.fromJson(bodyBufferElement));
+          if(!organisationMembers.any((element) => element.id == CustomOrganisationMember.fromJson(bodyBufferElement).id)){
+            organisationMembers.add(CustomOrganisationMember.fromJson(bodyBufferElement));
           }
         });
       }else{
@@ -55,8 +55,8 @@ class _OrganisationManagementPage extends State<OrganisationManagementPage> {
       });
     }
   }
-  Future<void> deleteOrganisationMember(OrganisationMember member) async{
-    final String url = "http://10.0.2.2:5000/organisation/removeMember?id=" + member.id.toString();
+  Future<void> deleteOrganisationMember(CustomOrganisationMember member) async{
+    final String url = "http://${Utility.url}/organisation/removeMember?id=" + member.id.toString();
     final response = await http.delete(Uri.parse(url));
     if(response.statusCode==200){
       setState(() {

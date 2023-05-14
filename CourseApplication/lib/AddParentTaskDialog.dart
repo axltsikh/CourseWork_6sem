@@ -1,12 +1,13 @@
 import 'package:course_application/AddProjectMemberDialog.dart';
 import 'package:course_application/AddSubtaskExecutorDialog.dart';
-import 'package:course_application/CustomModels/OrganisationMember.dart';
+import 'package:course_application/CustomModels/CustomOrganisationMember.dart';
 import 'package:course_application/Models/Project.dart';
 import 'package:course_application/Models/SubTask.dart';
 import 'package:course_application/Models/SubTaskExecutor.dart';
 import 'package:course_application/manyUsageTemplate/CupertinoButtonTemplate.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import 'CustomModels/CustomProject.dart';
 class AddParentTaskDialog extends StatefulWidget{
@@ -22,6 +23,17 @@ class _AddParentTaskDialog extends State<AddParentTaskDialog> {
   }
   CustomProject project;
   TextEditingController controller = TextEditingController();
+
+  void returnSubTask(){
+    if(controller.text.length < 3){
+      Fluttertoast.showToast(msg: "Минимальная длина названия задачи - 3 символа!");
+      return;
+    }
+    subTask.title=controller.text;
+    subTask.ProjectID=project.id;
+    Navigator.pop(context,subTask);
+  }
+
   SubTask subTask = SubTask.empty();
   @override
   Widget build(BuildContext context) {
@@ -42,12 +54,7 @@ class _AddParentTaskDialog extends State<AddParentTaskDialog> {
               SizedBox(height: 15,),
               CupertinoButtonTemplate(
                   "Сохранить",
-                      (){
-                    subTask.title=controller.text;
-                    subTask.ProjectID=project.id;
-                    print(subTask.ProjectID);
-                    Navigator.pop(context,subTask);
-                  }
+                  returnSubTask
               )
             ],
           ),

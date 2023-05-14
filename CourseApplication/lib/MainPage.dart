@@ -39,7 +39,6 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver{
        Utility.databaseHandler.GetAllData();
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return CupertinoTabScaffold(
