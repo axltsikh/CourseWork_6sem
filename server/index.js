@@ -221,6 +221,8 @@ app.post("/project/addMembers",function(req,response){
     }
 
 })
+
+
 app.get("/project/getAllUserProjects",function(req,response){
     console.log("getAllUserProjects call");
     request = new sql.Request();
@@ -230,15 +232,30 @@ app.get("/project/getAllUserProjects",function(req,response){
         response.end(JSON.stringify(result.recordset));
     })
 })
+app.put("/organisation/updateName",function(req,response){
+    console.log("getAllUserProjects call");
+    request = new sql.Request();
+    let buffer = JSON.parse(JSON.stringify(req.body));
+    request.input('organisationID',buffer.organisationID);
+    request.input('newName',buffer.newName);
+    request.execute('UpdateOrganisationName',(err,result)=>{
+        response.statusCode=200
+        response.end(JSON.stringify(result.recordset));
+    })
+})
+
 app.post("/project/addSubTask",function(req,response){
     console.log("proejcts call");
     request = new sql.Request();
+    
     request.input('userID',req.query.userID);
     request.execute('GetAllUserProjects',(err,result)=>{
         response.statusCode=200
         response.end(JSON.stringify(result.recordset));
     })
 })
+
+
 app.get("/project/getAllProjectMembers",function(req,response){
     console.log("proejctsMembers call");
     

@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 import 'package:oktoast/oktoast.dart';
-import 'MainPage.dart';
+import 'Pages/MainPage.dart';
 import 'Utility.dart';
 
 void main() {
@@ -21,6 +21,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return OKToast(child: MaterialApp(
       title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
 
         primarySwatch: Colors.blue,
