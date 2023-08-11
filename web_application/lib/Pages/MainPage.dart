@@ -249,7 +249,98 @@ class _MainPageState extends State<MainPage> {
     }
     return Text("");
   }
-
+  Future<void> setDate(int index)async{
+    var a = await showDialog(
+        context: context,
+        builder: (BuildContext context){
+          return AlertDialog(
+              shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(30))),
+              contentPadding: const EdgeInsets.only(top: 10.0),
+              content: Padding(
+                padding: const EdgeInsets.all(15),
+                child: SizedBox(
+                    width: 300,
+                    height: 390,
+                    child: Column(
+                      children: [
+                        const Text("Выберите новую дату"),
+                        const Divider(color: Colors.blue,),
+                        SfDateRangePicker(
+                          onSelectionChanged: (DateRangePickerSelectionChangedArgs args){
+                            setState(() {
+                              newEndDate = args.value.toString().substring(0,10);
+                              print(newEndDate);
+                            });
+                          },
+                          selectionMode: DateRangePickerSelectionMode.single,
+                          initialSelectedDate: DateTime.now(),
+                        ),
+                        CupertinoButton.filled(
+                          onPressed: (){
+                            updateProjectDate(projects[index]);
+                          },
+                          borderRadius: BorderRadius.circular(50),
+                          child: const Text("Сохранить изменения"),
+                        )
+                      ],
+                    )
+                ),
+              )
+          );
+        }
+    );
+    print("prolong");
+  }
+  Widget inkWell(int index){
+    return InkWell(
+      borderRadius: BorderRadius.circular(100),
+      onTap: (){Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleProjectPage(projects[index])));},
+      child: SizedBox(
+        height: 250,
+        width: 500,
+        child: Column(
+          children: [
+            Expanded(
+              flex: 1,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(projects[index].Title,style: const TextStyle(color: Colors.black,fontSize: 20))
+                ],
+              ),
+            ),
+            Expanded(
+              flex: 1,
+              child: Row(
+                children: [
+                  Container(
+                      margin: const EdgeInsets.only(left: 25),
+                      child: Text(projects[index].Description,style: const TextStyle(color: Colors.black))
+                  )
+                ],
+              ),
+            ),
+            Expanded(
+                flex: 1,
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Text(projects[index].StartDate.substring(0,10)),
+                        const Text("                                                          "),
+                        Text(projects[index].EndDate.substring(0,10))
+                      ],
+                    ),
+                  ],
+                )
+            )
+          ],
+        ),
+      ),
+    );
+  }
   @override
   Widget build(BuildContext context) {
     return ContextMenuOverlay(
@@ -326,47 +417,7 @@ class _MainPageState extends State<MainPage> {
                         contextMenu: GenericContextMenu(
                           buttonConfigs: [
                             ContextMenuButtonConfig("Продлить дату проекта", onPressed: ()async{
-                              var a = await showDialog(
-                                  context: context,
-                                  builder: (BuildContext context){
-                                    return AlertDialog(
-                                        shape: const RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.all(Radius.circular(30))),
-                                        contentPadding: const EdgeInsets.only(top: 10.0),
-                                        content: Padding(
-                                          padding: const EdgeInsets.all(15),
-                                          child: SizedBox(
-                                              width: 300,
-                                              height: 390,
-                                              child: Column(
-                                                children: [
-                                                  const Text("Выберите новую дату"),
-                                                  const Divider(color: Colors.blue,),
-                                                  SfDateRangePicker(
-                                                    onSelectionChanged: (DateRangePickerSelectionChangedArgs args){
-                                                      setState(() {
-                                                        newEndDate = args.value.toString().substring(0,10);
-                                                        print(newEndDate);
-                                                      });
-                                                    },
-                                                    selectionMode: DateRangePickerSelectionMode.single,
-                                                    initialSelectedDate: DateTime.now(),
-                                                  ),
-                                                  CupertinoButton.filled(
-                                                    onPressed: (){
-                                                      updateProjectDate(projects[index]);
-                                                    },
-                                                    borderRadius: BorderRadius.circular(50),
-                                                    child: const Text("Сохранить изменения"),
-                                                  )
-                                                ],
-                                              )
-                                          ),
-                                        )
-                                    );
-                                  }
-                              );
-                              print("prolong");
+                              setDate(index);
                             }),
                             ContextMenuButtonConfig("Завершить проект", onPressed: (){
                               endProject(projects[index]);
@@ -387,53 +438,7 @@ class _MainPageState extends State<MainPage> {
                                 borderRadius: BorderRadius.circular(100)
                             ),
                             shadowColor: Colors.blue,
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(100),
-                              onTap: (){Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleProjectPage(projects[index])));},
-                              child: SizedBox(
-                                height: 250,
-                                width: 500,
-                                child: Column(
-                                  children: [
-                                    Expanded(
-                                      flex: 1,
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Text(projects[index].Title,style: const TextStyle(color: Colors.black,fontSize: 20))
-                                        ],
-                                      ),
-                                    ),
-                                    Expanded(
-                                      flex: 1,
-                                      child: Row(
-                                        children: [
-                                          Container(
-                                              margin: const EdgeInsets.only(left: 25),
-                                              child: Text(projects[index].Description,style: const TextStyle(color: Colors.black))
-                                          )
-                                        ],
-                                      ),
-                                    ),
-                                    Expanded(
-                                      flex: 1,
-                                      child: Column(
-                                        children: [
-                                          Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                            children: [
-                                              Text(projects[index].StartDate.substring(0,10)),
-                                              const Text("                                                          "),
-                                              Text(projects[index].EndDate.substring(0,10))
-                                            ],
-                                          ),
-                                        ],
-                                      )
-                                    )
-                                  ],
-                                ),
-                              ),
-                            )
+                            child: inkWell(index)
                         ),
                       ),
                     ],

@@ -127,8 +127,6 @@ class _SingleProjectState extends State<SingleProjectPage>{
     }else{
       List<SubTaskModel> buffer = [];
       for(int i =0;i<childSubTasks.length;i++){
-        print("current: " + childSubTasks[i].isDone.toString());
-        print("snap: " + childSubTasksSnapshot[i].toString());
         if(childSubTasks[i].isDone!=childSubTasksSnapshot[i]){
           buffer.add(childSubTasks[i]);
         }
@@ -343,7 +341,7 @@ class _SingleProjectState extends State<SingleProjectPage>{
       ),
       body: SingleChildScrollView(
         child: Container(
-          padding: const EdgeInsets.all(15),
+          padding: const EdgeInsets.all(5),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,

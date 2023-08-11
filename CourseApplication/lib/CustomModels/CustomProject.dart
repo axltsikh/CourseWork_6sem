@@ -25,5 +25,4 @@ class CustomProject{
     'isDone' : isDone,
     'creatorID' : creatorID,
   };
-
 }

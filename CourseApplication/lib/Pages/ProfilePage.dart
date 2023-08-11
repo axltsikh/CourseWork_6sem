@@ -8,6 +8,7 @@ import 'package:course_application/Utility/Utility.dart';
 import 'package:course_application/Pages/main.dart';
 import 'package:course_application/manyUsageTemplate/CupertinoButtonTemplate.dart';
 import 'package:course_application/manyUsageTemplate/TextField.dart';
+import 'package:crypto/crypto.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -47,7 +48,7 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver{
     super.didUpdateWidget(oldWidget);
   }
   void changePasswordClick() async{
-    if(oldPasswordController.text != Utility.user.Password){
+    if(md5.convert(utf8.encode(oldPasswordController.text)).toString() != Utility.user.Password){
       Fluttertoast.showToast(msg: "Неверный пароль!");
       return;
     }else if(newPasswordController.text.length<8){
@@ -65,17 +66,17 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver{
     final connectivityResult = await (Connectivity().checkConnectivity());
     if(connectivityResult == ConnectivityResult.none){
       print("Local db question");
-      Utility.databaseHandler.updatePassword(repeatNewPasswordController.text);
+      Utility.databaseHandler.updatePassword(md5.convert(utf8.encode(repeatNewPasswordController.text)).toString());
     }else{
       final String url = "http://${Utility.url}/user/changePassword";
       final response = await http.post(Uri.parse(url),headers: <String,String>{
         'Content-Type': 'application/json;charset=UTF-8',
       },body: jsonEncode(<String,String>{
         'id': Utility.user.id.toString(),
-        'password': repeatNewPasswordController.text
+        'password': md5.convert(utf8.encode(repeatNewPasswordController.text)).toString()
       }));
       if(response.statusCode==200){
-        Utility.user.Password=repeatNewPasswordController.text;
+        Utility.user.Password=md5.convert(utf8.encode(repeatNewPasswordController.text)).toString();
         setState(() {
           oldPasswordController.text="";
           newPasswordController.text ="";

@@ -123,8 +123,6 @@ class DatabaseHandler{
     }
   }
   Future<void> uploadProjectMembers(int localProjectID,int globalProjectID,int creatorID)async{
-    print("uploadProjectMembers");
-    print("projectID:" + globalProjectID.toString() + "localProjectID: " + localProjectID.toString());
     Map<int,int> members= {};
     final db= await database;
     List<ProjectMember> projectMembers = [];

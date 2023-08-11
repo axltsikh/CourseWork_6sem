@@ -4,6 +4,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:course_application/Pages/CreateProjectPage.dart';
 import 'package:course_application/CustomModels/CustomProject.dart';
 import 'package:course_application/Pages/SingleProjectPage.dart';
+import 'package:course_application/Pages/SyncDialog.dart';
 import 'package:course_application/Utility/Utility.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -22,57 +23,25 @@ class _ProjectsPageState extends State<ProjectsPage>{
   _ProjectsPageState(){
     getOrganisation();
     getGlobalData();
-    // (Connectivity().checkConnectivity()).then((value){
-    //   if(value == ConnectivityResult.none){
-    //     GetProjects();
-    //     firstinit=false;
-    //   }
-    // });
-    // a = Connectivity().onConnectivityChanged.listen((ConnectivityResult event){
-    //   if(event == ConnectivityResult.wifi || event == ConnectivityResult.mobile){
-    //     print("asdasd");
-    //     if(Utility.connectionStatus==false){
-    //       reBuild();
-    //     }
-    //   }else if(event==ConnectivityResult.none){
-    //     print("none");
-    //   }
-    //   else{
-    //     print("none");
-    //     Utility.connectionStatus=false;
-    //   }
-    // });
-    // print("asd");
+    a=Connectivity().onConnectivityChanged.listen((ConnectivityResult event)async {
+      if(event==ConnectivityResult.wifi || event==ConnectivityResult.mobile){
+        if(!firstinit){
+          var a = showDialog(context: context, builder: (BuildContext context){
+            return AlertDialog(
+                shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(
+                        Radius.circular(30))),
+                contentPadding: const EdgeInsets.only(top: 10.0),
+                content: SyncDialog()
+            );
+          }).then((value){
+            GetProjects();
+          });
+        }
+    }
+    });
     GetProjects();
   }
-
-
-  //region useless trash
-  // Future<void> reBuild()async{
-  //   uploadMyData().then((value){
-  //     GetProjects();
-  //     Future.delayed(Duration(seconds: 5)).then((value)async{
-  //       print("starting sync");
-  //       await getGlobalData();
-  //     });
-  //   });
-  // }
-  // Future<bool> uploadMyData()async{
-  //   await Utility.databaseHandler.uploadData().then((value){
-  //   });
-  //   return true;
-  // }
-  // Future<void> checkConn()async{
-  //   final connectivityResult = await (Connectivity().checkConnectivity());
-  //   if(connectivityResult != ConnectivityResult.none){
-  //     await Utility.databaseHandler.GetAllData();
-  //     GetProjects();
-  //   }else{
-  //     GetProjects();
-  //   }
-  // }
-  //endregionasd
-
   Future<void> getGlobalData()async{
     final connectivityResult = await (Connectivity().checkConnectivity());
     if(connectivityResult == ConnectivityResult.none){
@@ -112,6 +81,12 @@ class _ProjectsPageState extends State<ProjectsPage>{
     print("update");
     GetProjects();
     super.didUpdateWidget(oldWidget);
+  }
+  @override
+  void dispose() {
+    print("cancel");
+    a?.cancel();
+    super.dispose();
   }
   Widget getTextWidget(int index){
     if(index==0 && projects[index].isDone == true && projects.length==1){
@@ -184,6 +159,7 @@ class _ProjectsPageState extends State<ProjectsPage>{
         });
       }
     }
+    firstinit=false;
   }
 
   @override
@@ -191,16 +167,16 @@ class _ProjectsPageState extends State<ProjectsPage>{
     return Scaffold(
       floatingActionButtonLocation: FloatingActionButtonLocation.startDocked,
       floatingActionButton: Container(
-        margin: EdgeInsets.only(bottom: 75),
+        margin: const EdgeInsets.only(bottom: 75),
         child: getFloatingButton()
       ),
       appBar: AppBar(
-        title: Text("Все проекты"),
+        title: const Text("Все проекты"),
       ),
       body: RefreshIndicator(
         onRefresh: GetProjects,
         child: Padding(
-          padding: EdgeInsets.all(5),
+          padding: const EdgeInsets.all(5),
           child: ListView.builder(
             itemCount: projects.length,
             itemBuilder: (BuildContext context,int index){
@@ -210,7 +186,7 @@ class _ProjectsPageState extends State<ProjectsPage>{
                   Card(
                       elevation: 10,
                       shape: RoundedRectangleBorder(
-                          side: BorderSide(
+                          side: const BorderSide(
                             color: Colors.blue,
                           ),
                           borderRadius: BorderRadius.circular(50)

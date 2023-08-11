@@ -37,8 +37,12 @@ class _CreateOrganizationPage extends State<CreateOrganizationPage> {
       'creatorID': Utility.user.id.toString()
     })).then((value) => {
       if(value.statusCode==200){
-        Fluttertoast.showToast(msg: "Организация создана")
-      }else{
+        Fluttertoast.showToast(msg: "Организация создана"),
+        Navigator.pop(context),
+        Navigator.pop(context)
+        
+      }
+      else{
         Fluttertoast.showToast(msg: "Произошла ошибка!")
       }
 

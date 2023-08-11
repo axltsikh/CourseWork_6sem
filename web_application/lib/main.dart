@@ -4,9 +4,7 @@ import 'dart:html';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
 import 'package:http/http.dart' as http;
-import 'package:flutter/foundation.dart';
 import 'package:oktoast/oktoast.dart';
 import 'Pages/MainPage.dart';
 import 'Utility.dart';

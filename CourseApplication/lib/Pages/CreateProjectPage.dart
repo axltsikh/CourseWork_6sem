@@ -17,8 +17,8 @@ class CreateProjectPage extends StatefulWidget{
   State<StatefulWidget> createState() => _CreateProjectPage();
 }
 class _CreateProjectPage extends State<CreateProjectPage> {
-  String startDate="";
-  String endDate="";
+  String startDate="Начало";
+  String endDate="Конец";
   List<CustomOrganisationMember> organisationMembers = <CustomOrganisationMember>[];
   List<CustomProjectMember> projectMembers = <CustomProjectMember>[];
   TextEditingController titleController = TextEditingController();
@@ -28,7 +28,7 @@ class _CreateProjectPage extends State<CreateProjectPage> {
   Future<void> createProject() async{
     if(titleController.text.length<3){
       Fluttertoast.showToast(msg: "Минимальная длина названия проекта - 3 символа");
-    }else if(startDate=="" || endDate==""){
+    }else if(startDate=="Начало" || endDate=="Конец"){
       Fluttertoast.showToast(msg: "Выберите даты проекта!");
     }
     if(descriptionController.text==""){
